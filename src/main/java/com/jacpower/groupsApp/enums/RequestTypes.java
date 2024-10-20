@@ -1,5 +1,5 @@
 package com.jacpower.groupsApp.enums;
 
 public enum RequestTypes {
-    CREATE_USER
+    CREATE_USER, GET_ROLE
 }

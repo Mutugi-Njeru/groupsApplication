@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.table.TableRowSorter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -54,4 +55,33 @@ public class RoleDao {
             throw  e;
         }
     }
+    // get role by username
+    public String getRole(String username){
+        String query="SELECT r.name FROM roles r INNER JOIN user_roles ur ON r.role_id=ur.role_id INNER JOIN users u ON u.user_id=ur.user_id WHERE u.username=?";
+        try {
+            return jdbcClient.sql(query)
+                    .param(username)
+                    .query((rs, rowNum)-> rs.getString(1))
+                    .single();
+        }
+        catch (Exception e){
+            logger.error("error message ========>{}", e.getMessage());
+            throw e;
+        }
+
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
