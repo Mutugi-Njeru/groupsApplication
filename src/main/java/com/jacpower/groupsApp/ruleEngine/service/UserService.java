@@ -4,6 +4,7 @@ import com.jacpower.groupsApp.dao.RoleDao;
 import com.jacpower.groupsApp.dao.UserDao;
 import com.jacpower.groupsApp.model.MyUser;
 import com.jacpower.groupsApp.records.ServiceResponder;
+import jakarta.json.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -34,5 +35,12 @@ public class UserService {
                     : new ServiceResponder(HttpStatus.EXPECTATION_FAILED, false, "cannot create user");
         }
         else return new ServiceResponder(HttpStatus.BAD_REQUEST, false, "email or username already taken" );
+    }
+
+    public ServiceResponder getUserId(String username){
+        int userId= userDao.getUserId(username);
+        return (userId>0)
+                ? new ServiceResponder(HttpStatus.ACCEPTED, true, Json.createObjectBuilder().add("userId", userId).build())
+                : new ServiceResponder(HttpStatus.EXPECTATION_FAILED, false, "cannot get userId");
     }
 }

@@ -1,10 +1,10 @@
-package com.jacpower.groupsApp.ruleEngine.rules.user;
+package com.jacpower.groupsApp.ruleEngine.rules.group;
 
 import com.jacpower.groupsApp.enums.Modules;
 import com.jacpower.groupsApp.enums.RequestTypes;
-import com.jacpower.groupsApp.model.MyUser;
+import com.jacpower.groupsApp.model.Group;
 import com.jacpower.groupsApp.ruleEngine.interfaces.ServiceRule;
-import com.jacpower.groupsApp.ruleEngine.service.UserService;
+import com.jacpower.groupsApp.ruleEngine.service.GroupService;
 import com.jacpower.groupsApp.utility.Constants;
 import com.jacpower.groupsApp.utility.Util;
 import jakarta.json.Json;
@@ -15,16 +15,16 @@ import org.springframework.stereotype.Service;
 import java.io.StringReader;
 
 @Service
-public class UserImplRule implements ServiceRule {
-    private final UserService userService;
+public class GroupImplRule implements ServiceRule {
+    private final GroupService groupService;
     @Autowired
-    public UserImplRule(UserService userService) {
-        this.userService = userService;
+    public GroupImplRule(GroupService groupService) {
+        this.groupService = groupService;
     }
 
     @Override
     public boolean matches(Object module) {
-        return (module.toString().equals(Modules.USER.name()));
+        return (module.toString().equals(Modules.GROUP.name()));
     }
 
     @Override
@@ -33,10 +33,12 @@ public class UserImplRule implements ServiceRule {
         String requestType = requestBody.getString(Constants.REQUEST_TYPE, "");
 
         switch (RequestTypes.valueOf(requestType)){
-            case CREATE_USER:
-                return Util.buildResponse(userService.createUser(MyUser.fromJsonObject(requestBody)));
-            case GET_USER_ID:
-                return Util.buildResponse(userService.getUserId(requestBody.getString("username")));
+            case CREATE_GROUP:
+                return Util.buildResponse(groupService.createGroup(Group.fromJsonObject(requestBody)));
+            case GET_GROUP_DETAILS:
+                return Util.buildResponse(groupService.getGroupDetails(requestBody.getInt("userId")));
+            case UPDATE_GROUP:
+                return Util.buildResponse(groupService.updateGroup(Group.fromJsonObject(requestBody)));
             default:
                 throw new IllegalArgumentException("Unexpected request type: " + requestType);
         }

@@ -3,6 +3,7 @@ package com.jacpower.groupsApp.controller;
 import com.jacpower.groupsApp.enums.Modules;
 import com.jacpower.groupsApp.enums.RequestTypes;
 import com.jacpower.groupsApp.ruleEngine.engine.Engine;
+import com.jacpower.groupsApp.utility.Constants;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class RoleController {
     public ResponseEntity<Object> getRole(@PathVariable("name")String name){
         JsonObject payload= Json.createObjectBuilder()
                 .add("username", name)
-                .add("requestType", RequestTypes.GET_ROLE.name())
+                .add(Constants.REQUEST_TYPE, RequestTypes.GET_ROLE.name())
                 .build();
         return engine.routeRequest(payload, Modules.ROLE.name());
     }

@@ -1,6 +1,7 @@
 package com.jacpower.groupsApp.dao;
 
 import com.jacpower.groupsApp.model.Role;
+import com.jacpower.groupsApp.utility.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class RoleDao {
                     .set();
         }
         catch (Exception e){
-            logger.error("error message=========>{}", e.getMessage());
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw e;
         }
 
@@ -51,7 +52,7 @@ public class RoleDao {
             return Objects.requireNonNull(generatedKeyHolder.getKey()).intValue();
         }
         catch (Exception e){
-            logger.error("error message=======>{}", e.getMessage());
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw  e;
         }
     }
@@ -65,7 +66,7 @@ public class RoleDao {
                     .single();
         }
         catch (Exception e){
-            logger.error("error message ========>{}", e.getMessage());
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw e;
         }
 

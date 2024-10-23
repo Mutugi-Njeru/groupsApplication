@@ -26,8 +26,8 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers( "/auth/authenticate","/user/create", "/role/get/**" ).permitAll();
-                    //auth.requestMatchers("/user/create").hasRole("USER");
+                    auth.requestMatchers( "/auth/authenticate","/user/create", "/role/get/**", "user/get/**" ).permitAll();
+                    auth.requestMatchers("/group/create", "/group/get/**").hasRole("USER");
                     auth.anyRequest().authenticated(); // All other requests need authentication
                 })
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

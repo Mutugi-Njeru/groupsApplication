@@ -2,6 +2,7 @@ package com.jacpower.groupsApp.dao;
 
 import com.jacpower.groupsApp.model.AuthUser;
 import com.jacpower.groupsApp.model.MyUser;
+import com.jacpower.groupsApp.utility.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class UserDao {
             return count > 0;
         }
         catch (Exception e){
-            logger.error("Error occurred while checking user existence {}", e.getMessage());
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             return false;
         }
     }
@@ -59,7 +60,7 @@ public class UserDao {
             return Objects.requireNonNull(generatedKeyHolder.getKey()).intValue();
         }
         catch (Exception e){
-            logger.error("error message============>{}", e.getMessage());
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw  e;
         }
     }
@@ -75,7 +76,7 @@ public class UserDao {
             return Objects.requireNonNull(generatedKeyHolder.getKey()).intValue();
         }
         catch (Exception e){
-            logger.error("error message===========>{}", e.getMessage());
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw  e;
         }
     }
@@ -90,8 +91,39 @@ public class UserDao {
                     .optional();
         }
         catch (Exception e){
-            logger.error("error message=========>{}", e.getMessage());
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw  e;
         }
     }
+    //get userid by username
+    public int getUserId(String username){
+        String query="SELECT user_id FROM users WHERE username=?";
+        try {
+            return jdbcClient.sql(query)
+                    .param(username)
+                    .query((rs, rowNum)-> rs.getInt(1))
+                    .single();
+        }
+        catch (Exception e){
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
+            throw  e;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
