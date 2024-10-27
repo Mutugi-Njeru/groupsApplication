@@ -48,6 +48,11 @@ public class GroupService {
                 ? new ServiceResponder(HttpStatus.ACCEPTED, true, "group updated successfully")
                 : new ServiceResponder(HttpStatus.EXPECTATION_FAILED, false, "cannot update group");
     }
+    public ServiceResponder getGroupId(int userId){
+        int groupId= groupDao.getGroupId(userId);
+        return new ServiceResponder(HttpStatus.ACCEPTED, true, Json.createObjectBuilder().add("groupId", groupId).build());
+    }
+
 }
 
 

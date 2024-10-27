@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.io.StringReader;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -49,7 +50,7 @@ public class GroupDao {
             jdbcClient.sql(query)
                     .params(List.of(group.userId(), group.groupName(), group.emailAddress(), group.registrationPin(), group.address(), group.phoneNumber(), group.groupDescription(), true))
                     .update(generatedKeyHolder);
-            return generatedKeyHolder.getKey().intValue();
+            return Objects.requireNonNull(generatedKeyHolder.getKey()).intValue();
         }
         catch (Exception e){
             logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
@@ -89,6 +90,34 @@ public class GroupDao {
         catch (Exception e){
             logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw  e;
+        }
+    }
+    //get groupId by userId
+    public int getGroupId(int userId){
+        String query="SELECT group_id FROM chama_group WHERE user_id=?";
+        try {
+            return jdbcClient.sql(query)
+                    .param(userId)
+                    .query((rs, rowNum)->rs.getInt(1))
+                    .single();
+        }
+        catch (Exception e){
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
+            throw e;
+        }
+    }
+     //get groupName by groupId
+    public String getGroupName(int groupId){
+        String query="SELECT group_name FROM chama_group WHERE group_id=?";
+        try {
+            return jdbcClient.sql(query)
+                    .param(groupId)
+                    .query((rs, rowNum)->rs.getString(1))
+                    .single();
+        }
+        catch (Exception e){
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
+            throw e;
         }
     }
 

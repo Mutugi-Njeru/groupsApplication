@@ -1,10 +1,10 @@
-package com.jacpower.groupsApp.ruleEngine.rules.group;
+package com.jacpower.groupsApp.ruleEngine.rules.attendance;
 
 import com.jacpower.groupsApp.enums.Modules;
 import com.jacpower.groupsApp.enums.RequestTypes;
-import com.jacpower.groupsApp.model.Group;
+import com.jacpower.groupsApp.model.Attendance;
 import com.jacpower.groupsApp.ruleEngine.interfaces.ServiceRule;
-import com.jacpower.groupsApp.ruleEngine.service.GroupService;
+import com.jacpower.groupsApp.ruleEngine.service.AttendanceService;
 import com.jacpower.groupsApp.utility.Constants;
 import com.jacpower.groupsApp.utility.Util;
 import jakarta.json.Json;
@@ -15,16 +15,17 @@ import org.springframework.stereotype.Service;
 import java.io.StringReader;
 
 @Service
-public class GroupImplRule implements ServiceRule {
-    private final GroupService groupService;
+public class AttendanceImplRule implements ServiceRule {
+    private final AttendanceService attendanceService;
+
     @Autowired
-    public GroupImplRule(GroupService groupService) {
-        this.groupService = groupService;
+    public AttendanceImplRule(AttendanceService attendanceService) {
+        this.attendanceService = attendanceService;
     }
 
     @Override
     public boolean matches(Object module) {
-        return (module.toString().equals(Modules.GROUP.name()));
+        return (module.toString().equals(Modules.ATTENDANCE.name()));
     }
 
     @Override
@@ -33,14 +34,10 @@ public class GroupImplRule implements ServiceRule {
         String requestType = requestBody.getString(Constants.REQUEST_TYPE, "");
 
         switch (RequestTypes.valueOf(requestType)){
-            case CREATE_GROUP:
-                return Util.buildResponse(groupService.createGroup(Group.fromJsonObject(requestBody)));
-            case GET_GROUP_DETAILS:
-                return Util.buildResponse(groupService.getGroupDetails(requestBody.getInt("userId")));
-            case UPDATE_GROUP:
-                return Util.buildResponse(groupService.updateGroup(Group.fromJsonObject(requestBody)));
-            case GET_GROUP_ID:
-                return Util.buildResponse(groupService.getGroupId(requestBody.getInt("userId")));
+            case ADD_ATTENDANCE:
+                return Util.buildResponse(attendanceService.addAttendance(Attendance.fromJsonObject(requestBody)));
+            case GET_ATTENDANCE_DETAILS:
+                return Util.buildResponse(attendanceService.getAttendanceDetails(requestBody.getInt("meetingId")));
             default:
                 throw new IllegalArgumentException("Unexpected request type: " + requestType);
         }

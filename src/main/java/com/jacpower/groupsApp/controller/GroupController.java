@@ -45,6 +45,14 @@ public class GroupController {
                 .build();
         return engine.routeRequest(payload, Modules.GROUP.name());
     }
+    @GetMapping(value = "/id/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> getGroupId (@PathVariable ("userId") int userId){
+        JsonObject payload=Json.createObjectBuilder()
+                .add("userId", userId)
+                .add(Constants.REQUEST_TYPE, RequestTypes.GET_GROUP_ID.name())
+                .build();
+        return engine.routeRequest(payload, Modules.GROUP.name());
+    }
 
 
 
