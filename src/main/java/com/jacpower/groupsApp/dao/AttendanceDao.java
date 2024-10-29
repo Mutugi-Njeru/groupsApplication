@@ -77,7 +77,7 @@ public class AttendanceDao {
     //get attendance details
     public List<JsonObject> getAttendanceDetails (int meetingId){
         String query= """
-                SELECT m.firstname, m.lastname, a.meeting_id, a.amount, a.presence
+                SELECT m.firstname, m.lastname, a.meeting_id, a.amount, a.presence, a.member_id, a.attendance_id
                 FROM attendance a
                 INNER JOIN members m ON m.member_id=a.member_id
                 WHERE a.meeting_id=?""";
@@ -90,7 +90,9 @@ public class AttendanceDao {
                                 .add("lastname", rs.getString(2))
                                 .add("meetingId", rs.getInt(3))
                                 .add("contribution", rs.getInt(4) )
-                                .add("presence", rs.getString(5));
+                                .add("presence", rs.getString(5))
+                                .add("memberId", rs.getInt(6))
+                                .add("attendanceId", rs.getInt(7));
                         return jsonObjectBuilder.build();
                     }).stream().collect(Collectors.toList());
         }
@@ -100,6 +102,25 @@ public class AttendanceDao {
         }
 
     }
+
+    //update contribution and appearance by attendance id
+    public boolean updateAttendanceDetails(int amount, String presence, int attendanceId){
+        String query="UPDATE attendance SET amount=?, presence=? WHERE attendance_id=?";
+        try {
+            int rowsUpdated=jdbcClient.sql(query)
+                    .param(amount)
+                    .param(presence)
+                    .param(attendanceId)
+                    .update();
+            return rowsUpdated>0;
+        }
+        catch (Exception e){
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
+            throw  e;
+        }
+    }
+
+
 
 
 }

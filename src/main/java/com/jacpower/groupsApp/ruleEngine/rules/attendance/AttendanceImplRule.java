@@ -3,6 +3,7 @@ package com.jacpower.groupsApp.ruleEngine.rules.attendance;
 import com.jacpower.groupsApp.enums.Modules;
 import com.jacpower.groupsApp.enums.RequestTypes;
 import com.jacpower.groupsApp.model.Attendance;
+import com.jacpower.groupsApp.model.AttendanceUpdateDto;
 import com.jacpower.groupsApp.ruleEngine.interfaces.ServiceRule;
 import com.jacpower.groupsApp.ruleEngine.service.AttendanceService;
 import com.jacpower.groupsApp.utility.Constants;
@@ -38,6 +39,8 @@ public class AttendanceImplRule implements ServiceRule {
                 return Util.buildResponse(attendanceService.addAttendance(Attendance.fromJsonObject(requestBody)));
             case GET_ATTENDANCE_DETAILS:
                 return Util.buildResponse(attendanceService.getAttendanceDetails(requestBody.getInt("meetingId")));
+            case UPDATE_ATTENDANCE:
+                return Util.buildResponse(attendanceService.updateAttendanceDetails(AttendanceUpdateDto.fromJsonObject(requestBody)));
             default:
                 throw new IllegalArgumentException("Unexpected request type: " + requestType);
         }

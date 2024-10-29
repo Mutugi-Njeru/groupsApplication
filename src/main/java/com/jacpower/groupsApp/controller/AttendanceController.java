@@ -3,6 +3,7 @@ package com.jacpower.groupsApp.controller;
 import com.jacpower.groupsApp.enums.Modules;
 import com.jacpower.groupsApp.enums.RequestTypes;
 import com.jacpower.groupsApp.model.Attendance;
+import com.jacpower.groupsApp.model.AttendanceUpdateDto;
 import com.jacpower.groupsApp.model.Group;
 import com.jacpower.groupsApp.ruleEngine.engine.Engine;
 import com.jacpower.groupsApp.utility.Constants;
@@ -41,4 +42,12 @@ public class AttendanceController {
                 .build();
         return engine.routeRequest(payload, Modules.ATTENDANCE.name());
     }
+    @PutMapping(path = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> updateAttendanceDetails(@RequestBody @Valid AttendanceUpdateDto attendance){
+        JsonObject payload= Json.createObjectBuilder(attendance.toJsonObject())
+                .add(Constants.REQUEST_TYPE, RequestTypes.UPDATE_ATTENDANCE.name())
+                .build();
+        return engine.routeRequest(payload, Modules.ATTENDANCE.name());
+    }
+
 }

@@ -217,5 +217,20 @@ public class MemberDao {
             throw e;
         }
     }
+    //get fullName by memberId
+    public String getMemberFullName(int memberId){
+        String query="SELECT CONCAT(Firstname, ' ', lastname) AS fullName FROM members WHERE member_id=?";
+        try {
+            return jdbcClient.sql(query)
+                    .param(memberId)
+                    .query((rs, rowNum)-> rs.getString(1))
+                    .single();
+        }
+        catch (Exception e){
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
+            throw e;
+        }
+
+    }
 
 }
