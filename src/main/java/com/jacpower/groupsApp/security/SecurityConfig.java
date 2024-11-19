@@ -29,8 +29,11 @@ public class SecurityConfig {
                     auth.requestMatchers( "/auth/authenticate","/user/create", "/role/get/**", "/user/get/**" ).permitAll();
                     auth.requestMatchers("/group/create", "/group/id/**", "/group/get/**", "/member/create",
                             "/member/get", "/member/update/**", "/member/deactivate/**", "/member/activate/**",
-                            "/meeting/create", "/meeting/get/**", "/meeting/close/**", "/attendance/get/**", "/attendance/update", "/account/create").hasRole("USER");
-                    auth.requestMatchers("/attendance/add").hasAnyRole("USER", "MEMBER");
+                            "/meeting/create", "/meeting/get/**", "/meeting/close/**", "/attendance/get/**",
+                            "/attendance/update/**", "/inventory/get/**", "/account/create", "/account/deposit", "/account/withdraw",
+                            "/loan/approve/**", "/loan/deny/**", "/lottery/get/**", "/user/update/details","/loan/get/**").hasRole("USER");
+                    auth.requestMatchers("/attendance/add", "/group/get").hasAnyRole("USER", "MEMBER");
+                    //auth.requestMatchers("/group/get").hasRole("ADMIN");
                     auth.anyRequest().authenticated(); // All other requests need authentication
                 })
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

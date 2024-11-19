@@ -3,6 +3,7 @@ package com.jacpower.groupsApp.ruleEngine.rules.account;
 import com.jacpower.groupsApp.enums.Modules;
 import com.jacpower.groupsApp.enums.RequestTypes;
 import com.jacpower.groupsApp.model.Account;
+import com.jacpower.groupsApp.model.DepositWithdrawDto;
 import com.jacpower.groupsApp.ruleEngine.interfaces.ServiceRule;
 import com.jacpower.groupsApp.ruleEngine.service.AccountService;
 import com.jacpower.groupsApp.utility.Constants;
@@ -40,6 +41,10 @@ public class AccountImplRule implements ServiceRule {
                 return Util.buildResponse(accountService.createAccount(Account.fromJsonObject(requestBody)));
             case GET_ACCOUNT_DETAILS:
                 return Util.buildResponse(accountService.getAccountDetails(requestBody.getInt("groupId")));
+            case DEPOSIT_TO_ACCOUNT:
+                return Util.buildResponse(accountService.depositToAccount(DepositWithdrawDto.fromJsonObject(requestBody)));
+            case WITHDRAW_FROM_ACCOUNT:
+                return Util.buildResponse(accountService.withdrawFromAccount(DepositWithdrawDto.fromJsonObject(requestBody)));
             default:
                 throw new IllegalArgumentException("Unexpected request type: " + requestType);
         }

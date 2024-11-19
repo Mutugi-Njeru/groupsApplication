@@ -3,6 +3,7 @@ package com.jacpower.groupsApp.dao;
 import com.jacpower.groupsApp.model.AuthUser;
 import com.jacpower.groupsApp.model.MyUser;
 import com.jacpower.groupsApp.utility.Constants;
+import jakarta.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +110,42 @@ public class UserDao {
             throw  e;
         }
     }
+
+    public  String getUserFullName(int userId){
+        String query="SELECT concat(firstname, ' ', lastname) as fullName from user_details where user_id=?";
+        try {
+            return jdbcClient.sql(query)
+                    .param(userId)
+                    .query((rs, rowNum)-> rs.getString(1))
+                    .single();
+        }
+        catch (Exception e){
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
+            throw  e;
+        }
+
+    }
+    //update username and password
+    public boolean updateUsernameAndPassword(int userId, String username, String password){
+        String query="UPDATE users SET username=?, password=? WHERE user_id=?";
+        String hashedPassword=passwordEncoder.encode(password);
+        try {
+            int rowsUpdated=jdbcClient.sql(query)
+                    .param(username)
+                    .param(hashedPassword)
+                    .param(userId)
+                    .update();
+            return rowsUpdated>0;
+        }
+        catch (Exception e){
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
+            throw  e;
+        }
+    }
+
+    //get all users
+
+
 
 
 

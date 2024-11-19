@@ -78,14 +78,14 @@ public class MemberDao {
     }
 
     //add into users to get user_id
-    public int addMemberToUsers(String username, String password) {
-        String query = "INSERT INTO users (username, password, is_active) VALUES (?,?,?)";
+    public int addMemberToUsers(String username, String password, String email) {
+        String query = "INSERT INTO users (username, password, is_active, email) VALUES (?,?,?,?)";
         GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
         String hashedPassword = passwordEncoder.encode(password);
 
         try {
             jdbcClient.sql(query)
-                    .params(List.of(username, hashedPassword, true))
+                    .params(List.of(username, hashedPassword, true, email))
                     .update(generatedKeyHolder);
             return Objects.requireNonNull(generatedKeyHolder.getKey()).intValue();
         } catch (Exception e) {
@@ -98,7 +98,9 @@ public class MemberDao {
     public List<JsonObject> getGroupMembers(int groupId) {
         String query = """
                     SELECT m.member_id, CONCAT(m.firstname, ' ', m.lastname) AS full_name, m.phone, m.id_number, m.email, m.is_active
-                    FROM members m WHERE m.group_id=?;
+                    FROM members m
+                    INNER JOIN chama_group c on c.group_id=m.group_id
+                    WHERE m.group_id=? AND c.is_active=true;
                 """;
         try {
             return jdbcClient.sql(query)
@@ -230,7 +232,19 @@ public class MemberDao {
             logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw e;
         }
-
+    }
+    public int getGroupIdByMemberId(int memberId){
+        String query="SELECT group_id FROM members WHERE member_id=?";
+        try {
+            return jdbcClient.sql(query)
+                    .param(memberId)
+                    .query((rs, rowNum)->rs.getInt(1))
+                    .single();
+        }
+        catch (Exception e){
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
+            throw e;
+        }
     }
 
 }

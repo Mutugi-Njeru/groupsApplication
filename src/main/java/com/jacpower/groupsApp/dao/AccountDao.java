@@ -19,7 +19,7 @@ import java.util.Optional;
 @Repository
 public class AccountDao {
     private final JdbcClient jdbcClient;
-    private static final Logger logger= LoggerFactory.getLogger(AccountDao.class);
+    private static final Logger logger = LoggerFactory.getLogger(AccountDao.class);
 
     @Autowired
     public AccountDao(JdbcClient jdbcClient) {
@@ -27,69 +27,72 @@ public class AccountDao {
     }
 
     //check if group has an account
-    public boolean doesAccountExist(int groupId){
-        String query="SELECT COUNT(account_id) FROM account WHERE group_id=?";
+    public boolean doesAccountExist(int groupId) {
+        String query = "SELECT COUNT(account_id) FROM account WHERE group_id=?";
         try {
-            int count=jdbcClient.sql(query)
+            int count = jdbcClient.sql(query)
                     .param(groupId)
-                    .query((rs, rowNum)-> rs.getInt(1))
+                    .query((rs, rowNum) -> rs.getInt(1))
                     .single();
-            return count>0;
-        }
-        catch (Exception e){
+            return count > 0;
+        } catch (Exception e) {
             logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw e;
         }
     }
 
     //create account
-    public int createAccount(Account account){
-        String query="INSERT INTO account(group_id, account_name) VALUES (?,?)";
-        GeneratedKeyHolder generatedKeyHolder=new GeneratedKeyHolder();
+    public int createAccount(Account account) {
+        String query = "INSERT INTO account(group_id, account_name) VALUES (?,?)";
+        GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
         try {
             jdbcClient.sql(query)
                     .params(List.of(account.groupId(), account.accountName()))
                     .update(generatedKeyHolder);
             return Objects.requireNonNull(generatedKeyHolder.getKey()).intValue();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
-            throw  e;
+            throw e;
         }
     }
-    public Optional<JsonObject> getAccountDetails(int groupId){
-        String query= """
-                SELECT JSON_OBJECT(
-                'accountId', account_id,
-                'accountName', account_name,
-                'amount', amount)
-                AS account_json FROM account
-                WHERE group_id=?
-                """;
+
+    public Optional<JsonObject> getAccountDetails(int groupId) {
+        String query = """
+                 SELECT JSON_OBJECT(
+                 'accountId', a.account_id,
+                 'accountName', a.account_name,
+                 'amount', a.amount)
+                 AS account_json FROM account a
+                INNER JOIN chama_group g on g.group_id=a.group_id
+                WHERE a.group_id=? AND g.is_active=true
+                 """;
         try {
             return jdbcClient.sql(query)
                     .param(groupId)
                     .query((rs, rowNum) -> Json.createReader(new StringReader(rs.getString("account_json"))).readObject())
                     .optional();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw e;
         }
     }
-    public boolean updateAccountBalance(int amount, int groupId){
-        String query="UPDATE account SET amount=? WHERE group_id=?";
+
+    public boolean updateAccountBalance(int amount, int groupId) {
+        String query = "UPDATE account SET amount=? WHERE group_id=?";
         try {
-            int rowsUpdated=jdbcClient.sql(query)
+            int rowsUpdated = jdbcClient.sql(query)
                     .param(amount)
                     .param(groupId)
                     .update();
-            return rowsUpdated>0;
-        }
-        catch (Exception e){
+            return rowsUpdated > 0;
+        } catch (Exception e) {
             logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
-            throw  e;
+            throw e;
         }
     }
 
+    //user deposit
+    //update inventory true with user full names
+    //get username via userId
+    //update account
 }

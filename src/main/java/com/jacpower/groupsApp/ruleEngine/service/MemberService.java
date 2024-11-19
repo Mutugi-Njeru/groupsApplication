@@ -43,7 +43,7 @@ public class MemberService {
             boolean isUsernameTaken = memberDao.isUsernameTaken(member.username()); // check username
             if (!isUsernameTaken) {
                 int memberId = memberDao.createMember(member);
-                int memberUserId = memberDao.addMemberToUsers(member.username(), member.password());
+                int memberUserId = memberDao.addMemberToUsers(member.username(), member.password(), member.email());
                 int memberRoleId = roleDao.addUserRole(memberUserId, 3);
                 String groupName = groupDao.getGroupName(member.groupId());
 

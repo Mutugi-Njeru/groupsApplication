@@ -4,6 +4,7 @@ import com.jacpower.groupsApp.model.Group;
 import com.jacpower.groupsApp.utility.Constants;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +16,13 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class GroupDao {
     private final JdbcClient jdbcClient;
-    private final Logger logger= LoggerFactory.getLogger(GroupDao.class);
+    private final Logger logger = LoggerFactory.getLogger(GroupDao.class);
+
     @Autowired
     public GroupDao(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
@@ -27,39 +30,38 @@ public class GroupDao {
 
     //check if group exists by registration pin and group name
 
-    public boolean isGroupExist(String registrationPin, String groupName, String email){
-        String query="SELECT COUNT(group_id) FROM chama_group WHERE registration_pin=? OR group_name=? OR email_address=?";
+    public boolean isGroupExist(String registrationPin, String groupName, String email) {
+        String query = "SELECT COUNT(group_id) FROM chama_group WHERE registration_pin=? OR group_name=? OR email_address=?";
         try {
-            int count=jdbcClient.sql(query)
+            int count = jdbcClient.sql(query)
                     .params(List.of(registrationPin, groupName, email))
-                    .query((rs, rowNum)-> rs.getInt(1))
+                    .query((rs, rowNum) -> rs.getInt(1))
                     .single();
-            return count>0;
-        }
-        catch (Exception e){
+            return count > 0;
+        } catch (Exception e) {
             logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
-            throw  e;
+            throw e;
         }
     }
 
     //create group
-    public int createGroup (Group group){
-        String query="INSERT INTO chama_group (user_id, group_name, email_address, registration_pin, address, phone_number, group_description, is_active) VALUES (?,?,?,?,?,?,?,?)";
-        GeneratedKeyHolder generatedKeyHolder=new GeneratedKeyHolder();
+    public int createGroup(Group group) {
+        String query = "INSERT INTO chama_group (user_id, group_name, email_address, registration_pin, address, phone_number, group_description, is_active) VALUES (?,?,?,?,?,?,?,?)";
+        GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
         try {
             jdbcClient.sql(query)
                     .params(List.of(group.userId(), group.groupName(), group.emailAddress(), group.registrationPin(), group.address(), group.phoneNumber(), group.groupDescription(), true))
                     .update(generatedKeyHolder);
             return Objects.requireNonNull(generatedKeyHolder.getKey()).intValue();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw e;
         }
     }
+
     //get group details by userId
-    public Optional<JsonObject> getGroupDetails(int userId){
-        String query= """
+    public Optional<JsonObject> getGroupDetails(int userId) {
+        String query = """
                 SELECT JSON_OBJECT(
                 'groupId', group_id,
                 'groupName', group_name,
@@ -70,7 +72,7 @@ public class GroupDao {
                 'groupDescription', group_description,
                 'isActive', is_active
                 )
-                AS group_json FROM chama_group WHERE user_id=?
+                AS group_json FROM chama_group WHERE user_id=? AND is_active=true
                 """;
         return jdbcClient.sql(query)
                 .param(userId)
@@ -79,43 +81,78 @@ public class GroupDao {
     }
 
     //update group
-    public boolean updateGroupDetails(Group group){
-        String query="UPDATE chama_group SET group_name=?, email_address=?, registration_pin=?, address=?, phone_number=?, group_description=? WHERE user_id=?";
+    public boolean updateGroupDetails(Group group) {
+        String query = "UPDATE chama_group SET group_name=?, email_address=?, registration_pin=?, address=?, phone_number=?, group_description=? WHERE user_id=?";
         try {
-            int rowsUpdated=jdbcClient.sql(query)
+            int rowsUpdated = jdbcClient.sql(query)
                     .params(List.of(group.groupName(), group.emailAddress(), group.registrationPin(), group.address(), group.phoneNumber(), group.groupDescription(), group.userId()))
                     .update();
-            return rowsUpdated>0;
-        }
-        catch (Exception e){
-            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
-            throw  e;
-        }
-    }
-    //get groupId by userId
-    public int getGroupId(int userId){
-        String query="SELECT group_id FROM chama_group WHERE user_id=?";
-        try {
-            return jdbcClient.sql(query)
-                    .param(userId)
-                    .query((rs, rowNum)->rs.getInt(1))
-                    .single();
-        }
-        catch (Exception e){
+            return rowsUpdated > 0;
+        } catch (Exception e) {
             logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw e;
         }
     }
-     //get groupName by groupId
-    public String getGroupName(int groupId){
-        String query="SELECT group_name FROM chama_group WHERE group_id=?";
+
+    //get groupId by userId
+    public int getGroupId(int userId) {
+        String query = "SELECT group_id FROM chama_group WHERE user_id=?";
+        try {
+            return jdbcClient.sql(query)
+                    .param(userId)
+                    .query((rs, rowNum) -> rs.getInt(1))
+                    .single();
+        } catch (Exception e) {
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
+            throw e;
+        }
+    }
+
+    //get groupName by groupId
+    public String getGroupName(int groupId) {
+        String query = "SELECT group_name FROM chama_group WHERE group_id=?";
         try {
             return jdbcClient.sql(query)
                     .param(groupId)
-                    .query((rs, rowNum)->rs.getString(1))
+                    .query((rs, rowNum) -> rs.getString(1))
                     .single();
+        } catch (Exception e) {
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
+            throw e;
         }
-        catch (Exception e){
+    }
+
+    //deactivate group
+    public boolean activateOrDeactivateGroup(int groupId, boolean status) {
+        String query = "UPDATE chama_group SET is_active=? WHERE group_id=?";
+        try {
+            int rowsUpdated = jdbcClient.sql(query)
+                    .param(status)
+                    .param(groupId)
+                    .update();
+            return rowsUpdated > 0;
+        } catch (Exception e) {
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
+            throw e;
+        }
+    }
+
+    public List<JsonObject> getAllGroups() {
+        String query = "SELECT group_name, email_address, registration_pin, address, phone_number, group_description, is_active FROM chama_group";
+        try {
+            return jdbcClient.sql(query)
+                    .query((rs, rowNum) -> {
+                        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder()
+                                .add("groupName", rs.getString(1))
+                                .add("emailAddress", rs.getString(2))
+                                .add("registrationPin", rs.getString(3))
+                                .add("address", rs.getString(4))
+                                .add("phoneNumber", rs.getString(5))
+                                .add("groupDescription", rs.getString(6))
+                                .add("status", rs.getBoolean(7));
+                        return jsonObjectBuilder.build();
+                    }).stream().collect(Collectors.toList());
+        } catch (Exception e) {
             logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
             throw e;
         }

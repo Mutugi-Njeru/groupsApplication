@@ -3,13 +3,16 @@ package com.jacpower.groupsApp.ruleEngine.service;
 import com.jacpower.groupsApp.dao.GroupDao;
 import com.jacpower.groupsApp.model.Group;
 import com.jacpower.groupsApp.records.ServiceResponder;
+import com.jacpower.groupsApp.utility.Util;
 import jakarta.json.Json;
+import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -51,6 +54,19 @@ public class GroupService {
     public ServiceResponder getGroupId(int userId){
         int groupId= groupDao.getGroupId(userId);
         return new ServiceResponder(HttpStatus.ACCEPTED, true, Json.createObjectBuilder().add("groupId", groupId).build());
+    }
+    public ServiceResponder deactivateGroup(int groupId){
+        boolean isUpdated = groupDao.activateOrDeactivateGroup(groupId, false);
+        return (isUpdated)
+                ? new ServiceResponder(HttpStatus.ACCEPTED, true, "group deactivated successfully")
+                : new ServiceResponder(HttpStatus.EXPECTATION_FAILED, false, "cannot deactivate group");
+    }
+    public ServiceResponder getAllGroups(){
+        List<JsonObject> allGroups = groupDao.getAllGroups();
+        JsonArray groups = Util.convertListToJsonArray(allGroups);
+        return (!groups.isEmpty())
+                ? new ServiceResponder(HttpStatus.ACCEPTED, true, groups)
+                : new ServiceResponder(HttpStatus.EXPECTATION_FAILED, false, Json.createArrayBuilder().build());
     }
 
 }

@@ -3,6 +3,7 @@ package com.jacpower.groupsApp.controller;
 import com.jacpower.groupsApp.enums.Modules;
 import com.jacpower.groupsApp.enums.RequestTypes;
 import com.jacpower.groupsApp.model.Account;
+import com.jacpower.groupsApp.model.DepositWithdrawDto;
 import com.jacpower.groupsApp.model.Group;
 import com.jacpower.groupsApp.ruleEngine.engine.Engine;
 import com.jacpower.groupsApp.utility.Constants;
@@ -45,6 +46,21 @@ public class AccountController {
         JsonObject payload=Json.createObjectBuilder()
                 .add("groupId", groupId)
                 .add(Constants.REQUEST_TYPE, RequestTypes.GET_ACCOUNT_DETAILS.name())
+                .build();
+        return engine.routeRequest(payload, Modules.ACCOUNT.name());
+    }
+    @PutMapping(path = "/deposit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> depositToAccount(@RequestBody @Valid DepositWithdrawDto dto){
+        JsonObject payload=Json.createObjectBuilder(dto.toJsonObject())
+                .add(Constants.REQUEST_TYPE, RequestTypes.DEPOSIT_TO_ACCOUNT.name())
+                .build();
+        return engine.routeRequest(payload, Modules.ACCOUNT.name());
+    }
+
+    @PutMapping(path = "/withdraw", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> withdrawFromAccount(@RequestBody @Valid DepositWithdrawDto dto){
+        JsonObject payload=Json.createObjectBuilder(dto.toJsonObject())
+                .add(Constants.REQUEST_TYPE, RequestTypes.WITHDRAW_FROM_ACCOUNT.name())
                 .build();
         return engine.routeRequest(payload, Modules.ACCOUNT.name());
     }

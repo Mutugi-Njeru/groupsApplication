@@ -119,6 +119,21 @@ public class AttendanceDao {
             throw  e;
         }
     }
+    //select amount from attendance by attendance id
+    public int getAmountFromAttendance(int attendanceId){
+        String query="SELECT amount FROM attendance WHERE attendance_id=?";
+        try {
+            return jdbcClient.sql(query)
+                    .param(attendanceId)
+                    .query((rs, rowNum)->rs.getInt(1))
+                    .single();
+        }
+        catch (Exception e){
+            logger.error(Constants.ERROR_LOG_TEMPLATE, e.getMessage());
+            throw e;
+        }
+
+    }
 
 
 

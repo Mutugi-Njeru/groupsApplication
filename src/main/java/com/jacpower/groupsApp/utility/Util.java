@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.*;
 
 public class Util {
     public Util(){}
@@ -68,5 +68,27 @@ public class Util {
             return false;
         }
     }
+    public static int getMemberToAwardLottery(Set<Integer> membersFromGroup, Set<Integer> membersWithLottery){
+        Integer[] membersFromGroupArray=membersFromGroup.toArray(new Integer[0]);
+        Integer[] membersWithLotteryArray=membersWithLottery.toArray(new Integer[0]);
+        Random random=new Random();
+
+
+        if (membersWithLotteryArray.length==0 || membersWithLotteryArray.length==membersFromGroupArray.length){
+            int randomIndex= random.nextInt(membersFromGroupArray.length);
+            return membersFromGroupArray[randomIndex];
+            //do random of members from group
+        }
+        else{
+            ArrayList<Integer> fromGroupList=new ArrayList<>(Arrays.asList(membersFromGroupArray));
+            for (Integer num: membersWithLotteryArray){
+                fromGroupList.remove(num);
+            }
+            Integer[] resultArray=fromGroupList.toArray(new Integer[0]);
+            int randomIndex= random.nextInt(resultArray.length);
+            return resultArray[randomIndex];
+        }
+    }
+
 
 }

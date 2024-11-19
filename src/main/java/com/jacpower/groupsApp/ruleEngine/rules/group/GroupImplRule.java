@@ -41,6 +41,10 @@ public class GroupImplRule implements ServiceRule {
                 return Util.buildResponse(groupService.updateGroup(Group.fromJsonObject(requestBody)));
             case GET_GROUP_ID:
                 return Util.buildResponse(groupService.getGroupId(requestBody.getInt("userId")));
+            case DEACTIVATE_GROUP:
+                return Util.buildResponse(groupService.deactivateGroup(requestBody.getInt("groupId")));
+            case GET_ALL_GROUPS:
+                return  Util.buildResponse(groupService.getAllGroups());
             default:
                 throw new IllegalArgumentException("Unexpected request type: " + requestType);
         }

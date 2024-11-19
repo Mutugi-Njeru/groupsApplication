@@ -42,10 +42,17 @@ public class AttendanceController {
                 .build();
         return engine.routeRequest(payload, Modules.ATTENDANCE.name());
     }
-    @PutMapping(path = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> updateAttendanceDetails(@RequestBody @Valid AttendanceUpdateDto attendance){
+    @PutMapping(path = "/update/add", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> addUpdateAttendanceDetails(@RequestBody @Valid AttendanceUpdateDto attendance){
         JsonObject payload= Json.createObjectBuilder(attendance.toJsonObject())
-                .add(Constants.REQUEST_TYPE, RequestTypes.UPDATE_ATTENDANCE.name())
+                .add(Constants.REQUEST_TYPE, RequestTypes.ADD_UPDATE_ATTENDANCE.name())
+                .build();
+        return engine.routeRequest(payload, Modules.ATTENDANCE.name());
+    }
+    @PutMapping(path = "/update/deduct", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> deductUpdateAttendanceDetails(@RequestBody @Valid AttendanceUpdateDto attendance){
+        JsonObject payload= Json.createObjectBuilder(attendance.toJsonObject())
+                .add(Constants.REQUEST_TYPE, RequestTypes.DEDUCT_UPDATE_ATTENDANCE.name())
                 .build();
         return engine.routeRequest(payload, Modules.ATTENDANCE.name());
     }

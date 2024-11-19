@@ -3,9 +3,8 @@ package com.jacpower.groupsApp.ruleEngine.rules.user;
 import com.jacpower.groupsApp.enums.Modules;
 import com.jacpower.groupsApp.enums.RequestTypes;
 import com.jacpower.groupsApp.model.MyUser;
-import com.jacpower.groupsApp.model.UserDto;
 import com.jacpower.groupsApp.ruleEngine.interfaces.ServiceRule;
-import com.jacpower.groupsApp.ruleEngine.service.UserService;
+import com.jacpower.groupsApp.ruleEngine.service.AdminService;
 import com.jacpower.groupsApp.utility.Constants;
 import com.jacpower.groupsApp.utility.Util;
 import jakarta.json.Json;
@@ -16,16 +15,16 @@ import org.springframework.stereotype.Service;
 import java.io.StringReader;
 
 @Service
-public class UserImplRule implements ServiceRule {
-    private final UserService userService;
+public class AdminImplRule implements ServiceRule {
+    private final AdminService adminService;
     @Autowired
-    public UserImplRule(UserService userService) {
-        this.userService = userService;
+    public AdminImplRule(AdminService adminService) {
+        this.adminService = adminService;
     }
 
     @Override
     public boolean matches(Object module) {
-        return (module.toString().equals(Modules.USER.name()));
+        return (module.toString().equals(Modules.ADMIN.name()));
     }
 
     @Override
@@ -34,14 +33,11 @@ public class UserImplRule implements ServiceRule {
         String requestType = requestBody.getString(Constants.REQUEST_TYPE, "");
 
         switch (RequestTypes.valueOf(requestType)){
-            case CREATE_USER:
-                return Util.buildResponse(userService.createUser(MyUser.fromJsonObject(requestBody)));
-            case GET_USER_ID:
-                return Util.buildResponse(userService.getUserId(requestBody.getString("username")));
-            case UPDATE_USERNAME_PASSWORD:
-                return Util.buildResponse(userService.updateUsernameAndPassword(UserDto.fromJsonObject(requestBody)));
+            case CREATE_ADMIN:
+                return Util.buildResponse(adminService.createAdmin(MyUser.fromJsonObject(requestBody)));
             default:
                 throw new IllegalArgumentException("Unexpected request type: " + requestType);
         }
     }
+
 }

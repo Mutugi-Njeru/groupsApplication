@@ -63,8 +63,11 @@ public class MeetingDao {
     }
     //get all meetings by userId
     public List<JsonObject> getGroupMeetings(int userId){
-        String query="SELECT m.meeting_Id, m.meeting_date, m.appearance, m.objective, m.location, m.status from meeting m\n" +
-                "inner join chama_group g on m.group_id=g.group_id where g.user_id=? ORDER BY m.meeting_date DESC";
+        String query= """
+                SELECT m.meeting_Id, m.meeting_date, m.appearance, m.objective, m.location, m.status
+                FROM meeting m
+                INNER JOIN chama_group g ON m.group_id=g.group_id
+                WHERE g.user_id=? AND g.is_active=true ORDER BY m.meeting_date DESC""";
         try {
             return jdbcClient.sql(query)
                     .param(userId)
@@ -99,4 +102,5 @@ public class MeetingDao {
             throw e;
         }
     }
+
 }

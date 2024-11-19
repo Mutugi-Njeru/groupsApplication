@@ -53,6 +53,21 @@ public class GroupController {
                 .build();
         return engine.routeRequest(payload, Modules.GROUP.name());
     }
+    @PutMapping(value = "/deactivate/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> deactivateGroup (@PathVariable ("groupId") int groupId){
+        JsonObject payload=Json.createObjectBuilder()
+                .add("groupId", groupId)
+                .add(Constants.REQUEST_TYPE, RequestTypes.DEACTIVATE_GROUP.name())
+                .build();
+        return engine.routeRequest(payload, Modules.GROUP.name());
+    }
+    @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> getAllGroups (){
+        JsonObject payload=Json.createObjectBuilder()
+                .add(Constants.REQUEST_TYPE, RequestTypes.GET_ALL_GROUPS.name())
+                .build();
+        return engine.routeRequest(payload, Modules.GROUP.name());
+    }
 
 
 

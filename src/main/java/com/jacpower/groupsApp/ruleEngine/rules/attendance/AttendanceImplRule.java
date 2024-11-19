@@ -39,8 +39,10 @@ public class AttendanceImplRule implements ServiceRule {
                 return Util.buildResponse(attendanceService.addAttendance(Attendance.fromJsonObject(requestBody)));
             case GET_ATTENDANCE_DETAILS:
                 return Util.buildResponse(attendanceService.getAttendanceDetails(requestBody.getInt("meetingId")));
-            case UPDATE_ATTENDANCE:
-                return Util.buildResponse(attendanceService.updateAttendanceDetails(AttendanceUpdateDto.fromJsonObject(requestBody)));
+            case ADD_UPDATE_ATTENDANCE:
+                return Util.buildResponse(attendanceService.addAttendanceContribution(AttendanceUpdateDto.fromJsonObject(requestBody)));
+            case DEDUCT_UPDATE_ATTENDANCE:
+                return Util.buildResponse(attendanceService.deductAttendanceContribution(AttendanceUpdateDto.fromJsonObject(requestBody)));
             default:
                 throw new IllegalArgumentException("Unexpected request type: " + requestType);
         }

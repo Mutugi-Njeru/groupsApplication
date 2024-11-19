@@ -3,6 +3,7 @@ package com.jacpower.groupsApp.controller;
 import com.jacpower.groupsApp.enums.Modules;
 import com.jacpower.groupsApp.enums.RequestTypes;
 import com.jacpower.groupsApp.model.MyUser;
+import com.jacpower.groupsApp.model.UserDto;
 import com.jacpower.groupsApp.ruleEngine.engine.Engine;
 import com.jacpower.groupsApp.utility.Constants;
 import jakarta.json.Json;
@@ -37,6 +38,14 @@ public class UserController {
         JsonObject payload=Json.createObjectBuilder()
                 .add("username", username)
                 .add(Constants.REQUEST_TYPE, RequestTypes.GET_USER_ID.name())
+                .build();
+        return engine.routeRequest(payload, Modules.USER.name());
+    }
+
+    @PutMapping(value = "/update/details", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> updateUsernameAndPassword (@RequestBody @Valid UserDto userDto){
+        JsonObject payload=Json.createObjectBuilder(userDto.userDtoToJson())
+                .add(Constants.REQUEST_TYPE, RequestTypes.UPDATE_USERNAME_PASSWORD.name())
                 .build();
         return engine.routeRequest(payload, Modules.USER.name());
     }

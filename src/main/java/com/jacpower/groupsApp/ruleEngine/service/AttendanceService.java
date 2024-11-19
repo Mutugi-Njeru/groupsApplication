@@ -60,12 +60,15 @@ public class AttendanceService {
                 ? new ServiceResponder(HttpStatus.ACCEPTED, true, attendanceArray)
                 : new ServiceResponder(HttpStatus.NO_CONTENT, false, Json.createArrayBuilder().build());
     }
+    //add attendance contribution
     @Transactional
-    public ServiceResponder updateAttendanceDetails(AttendanceUpdateDto updateDto){
-        boolean isUpdated= attendanceDao.updateAttendanceDetails(updateDto.amount(), updateDto.presence(), updateDto.attendanceId());
-        String fullName= memberDao.getMemberFullName(updateDto.memberId());
+    public ServiceResponder addAttendanceContribution(AttendanceUpdateDto updateDto){
+        int amount= attendanceDao.getAmountFromAttendance(updateDto.attendanceId());
+        int updatedAmount=amount + updateDto.amount();
+        boolean isUpdated= attendanceDao.updateAttendanceDetails(updatedAmount, updateDto.presence(), updateDto.attendanceId());
         if (isUpdated){
-            int inventoryId= inventoryDao.updateContributionToInventory(updateDto.groupId(), fullName, updateDto.amount());
+            String fullName= memberDao.getMemberFullName(updateDto.memberId());
+            int inventoryId = inventoryDao.updateContributionToInventory(updateDto.groupId(), fullName, updateDto.amount(), "contribution", true);
             if (inventoryId>0){
                 int accountBalance= inventoryDao.getBalanceFromInventory(updateDto.groupId());
                 boolean balanceUpdated= accountDao.updateAccountBalance(accountBalance, updateDto.groupId());
@@ -76,15 +79,42 @@ public class AttendanceService {
             else return new ServiceResponder(HttpStatus.EXPECTATION_FAILED, false, "cannot add record to inventory");
         }
         else return new ServiceResponder(HttpStatus.EXPECTATION_FAILED, false, "cannot update attendance details");
-
-
-
-
-
-
-        // insert into inventory- group_id, fullName, amount
-        //we get groupId by userId on frontend
-        // get full name by memberId
-
     }
+
+    //deduct attendance contribution
+    @Transactional
+    public ServiceResponder deductAttendanceContribution(AttendanceUpdateDto updateDto){
+        int amount= attendanceDao.getAmountFromAttendance(updateDto.attendanceId());
+        int updatedAmount=amount - updateDto.amount();
+        boolean isUpdated= attendanceDao.updateAttendanceDetails(updatedAmount, updateDto.presence(), updateDto.attendanceId());
+        if (isUpdated){
+            String fullName= memberDao.getMemberFullName(updateDto.memberId());
+            int inventoryId = inventoryDao.updateContributionToInventory(updateDto.groupId(), fullName, updateDto.amount(), "contribution", false);
+            if (inventoryId>0){
+                int accountBalance= inventoryDao.getBalanceFromInventory(updateDto.groupId());
+                boolean balanceUpdated= accountDao.updateAccountBalance(accountBalance, updateDto.groupId());
+                return (balanceUpdated)
+                        ? new ServiceResponder(HttpStatus.ACCEPTED, true, "operation successful")
+                        : new ServiceResponder(HttpStatus.EXPECTATION_FAILED, false, "operation failed");
+            }
+            else return new ServiceResponder(HttpStatus.EXPECTATION_FAILED, false, "cannot add record to inventory");
+        }
+        else return new ServiceResponder(HttpStatus.EXPECTATION_FAILED, false, "cannot update attendance details");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
